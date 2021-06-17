@@ -6,6 +6,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Random;
 import java.util.Set;
 
 import org.jgrapht.Graph;
@@ -140,5 +142,113 @@ public class Model {
 		});
 		
 		return result;
+	}
+	
+	private List<Actor> intervistati;
+	private int numIntervistati;
+	private int numGiornateRiposo;
+	private int giorniConsecutivi;
+	private int giornoX;
+	
+	public void init() {
+		
+		intervistati = new ArrayList<>();
+		this.numGiornateRiposo = 0;
+		this.numIntervistati = 0;
+		this.giorniConsecutivi = 0;
+		this.giornoX = 0;
+		
+	}
+	
+	public void run(int N_giorni) {
+		
+		while(giornoX <= N_giorni) {
+			giornoX++;
+			
+			if(giorniConsecutivi >= 2 && Math.random() > 0.1) {
+				
+				this.numGiornateRiposo++;
+				this.giorniConsecutivi = 0;
+				
+			}else if(Math.random() > 0.4 || giorniConsecutivi == 0) {
+				
+				Actor a = getAttore();
+				intervistati.add(a);
+				this.numIntervistati++;
+				this.giorniConsecutivi++;
+				
+			}else if(Math.random() > 0.6) {
+				
+				Actor migliore = null;
+				int gradoMigliore = 0;
+				
+				for(Actor a: Graphs.neighborListOf(grafo, intervistati.get(intervistati.size()-1))) {
+					if(grafo.degreeOf(a) > gradoMigliore) {
+						migliore = a;
+						gradoMigliore = grafo.degreeOf(a);
+					}
+				}
+				
+				if(gradoMigliore == 0) {
+					Actor attore = getAttore();
+						
+					intervistati.add(attore);
+					numIntervistati++;
+					giorniConsecutivi++;
+					
+				}else {
+					if(migliore != null && !intervistati.contains(migliore)) {
+						intervistati.add(migliore);
+						numIntervistati++;
+						giorniConsecutivi++;
+					}else {
+						intervistati.add(getAttore());
+						numIntervistati++;
+						giorniConsecutivi++;
+					}
+					
+				}
+			}
+		}
+	}
+	
+	public Map<Integer, Actor> attori ;
+	public void setAttori() {
+		
+		attori = new HashMap<>();
+		for(Actor a: this.getVertici()) {
+			attori.put(a.getId(), a);
+		}
+	}
+	
+	public Actor getAttore() {
+		
+		
+		boolean trovato = false;
+		Actor a = null;
+		
+		while(trovato == false) {
+			a = attori.get((int) Math.random()*attori.size());
+			
+			if(!intervistati.contains(a)) {
+				trovato=true;
+				break;
+			}
+		
+		}
+		
+		return a;
+		
+	}
+	public int getNumeroIntervistati() {
+		return this.numIntervistati;
+	}
+	
+	public int getGiornateRiposo() {
+		return this.numGiornateRiposo;
+	}
+
+	public Graph<Actor, DefaultWeightedEdge> getGrafo() {
+		return grafo;
 	}
 }

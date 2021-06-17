@@ -103,7 +103,32 @@ public class FXMLController {
 
     @FXML
     void doSimulazione(ActionEvent event) {
-
+    	this.txtResult.clear();
+    	if(this.boxGenere.getValue() == null) {
+    		this.txtResult.setText("Prima crea il grafo");
+    		return;
+    	}
+    	
+    	if(model.getGrafo() == null) {
+    		this.txtResult.setText("Prima crea il grafo");
+    		return;
+    	}
+    	
+    	int n ;
+    	try {
+    		n = Integer.parseInt(this.txtGiorni.getText());
+    	}catch(NumberFormatException nfe) {
+    		this.txtResult.setText("Inserire prima un numero intero positivo");
+    		return;
+    	}
+    	
+    	model.setAttori();
+    	model.init();
+    	model.run(n);
+    	
+    	this.txtResult.appendText("Simulazione effettuata\n\n");
+    	this.txtResult.appendText("Attori intervistati: " + model.getNumeroIntervistati() +"\n");
+    	this.txtResult.appendText("Giornate di riposo: " +model.getGiornateRiposo());
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
