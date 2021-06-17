@@ -5,8 +5,13 @@
 package it.polito.tdp.imdb;
 
 import java.net.URL;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.imdb.model.Actor;
 import it.polito.tdp.imdb.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -35,10 +40,10 @@ public class FXMLController {
     private Button btnSimulazione; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxGenere"
-    private ComboBox<?> boxGenere; // Value injected by FXMLLoader
+    private ComboBox<String> boxGenere; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxAttore"
-    private ComboBox<?> boxAttore; // Value injected by FXMLLoader
+    private ComboBox<Actor> boxAttore; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtGiorni"
     private TextField txtGiorni; // Value injected by FXMLLoader
@@ -48,12 +53,52 @@ public class FXMLController {
 
     @FXML
     void doAttoriSimili(ActionEvent event) {
-
+    	this.txtResult.clear();
+    	Actor partenza = this.boxAttore.getValue();
+    	
+    	if(partenza.equals(null)) {
+    		this.txtResult.appendText("Devi prima selezionare un attore");
+    		return;
+    	}
+    	
+    	List<Actor> res = model.getAttoriSimili(partenza);
+    	this.txtResult.appendText("Hai selezionato l'attore: " + partenza +" e gli attori raggiungibili sono: \n\n");
+    	
+    	for(Actor a: res) {
+    		this.txtResult.appendText(a +"\n");
+    	}
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
+    	this.txtResult.clear();
+    	String genere = this.boxGenere.getValue();
+    	if(genere == null) {
+    		this.txtResult.setText("Prima seleziona un genere");
+    		return;
+    	}
+    	
+    	this.model.creaGrafo(genere);
+    	this.txtResult.appendText("GRAFO CREATO \n\n");
+    	this.txtResult.appendText("#vertici: " + this.model.getNVertici() +"\n");
+    	this.txtResult.appendText("#archi: " + this.model.getNArchi());
+    	
+    	List<Actor> vx = new LinkedList<>();
+    	for(Actor a: model.getVertici()) {
+    		vx.add(a);
+    	}
+    	
+    	Collections.sort(vx, new Comparator<Actor>() {
 
+			@Override
+			public int compare(Actor o1, Actor o2) {
+
+				return o1.getLastName().compareTo(o2.getLastName());
+			}
+    		
+    	});
+    	
+    	this.boxAttore.getItems().addAll(vx);
     }
 
     @FXML
@@ -75,5 +120,6 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	this.boxGenere.getItems().addAll(this.model.getGeneri());
     }
 }
