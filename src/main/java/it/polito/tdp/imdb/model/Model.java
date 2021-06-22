@@ -213,11 +213,19 @@ public class Model {
 	}
 	
 	public Map<Integer, Actor> attori ;
+	public int max = 0;
+	
 	public void setAttori() {
 		
 		attori = new HashMap<>();
 		for(Actor a: this.getVertici()) {
 			attori.put(a.getId(), a);
+		}
+		
+		for(Integer i: attori.keySet()) {
+			if(max < i) {
+				max = i;
+			}
 		}
 	}
 	
@@ -228,9 +236,9 @@ public class Model {
 		Actor a = null;
 		
 		while(trovato == false) {
-			a = attori.get((int) Math.random()*attori.size());
+			a = attori.get((int)Math.random() *max);
 			
-			if(!intervistati.contains(a)) {
+			if(a != null && !intervistati.contains(a)) {
 				trovato=true;
 				break;
 			}
